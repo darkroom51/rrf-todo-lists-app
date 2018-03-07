@@ -7,18 +7,31 @@ import Avatar from 'material-ui/Avatar';
 import IconButton from 'material-ui/IconButton';
 import SettingsIcon from 'material-ui-icons/Settings';
 import WorkIcon from 'material-ui-icons/Work';
+import ChatIcon from 'material-ui-icons/Chat';
+import ViewListIcon from 'material-ui-icons/ViewList';
+import WbSunnyIcon from 'material-ui-icons/WbSunny';
 
 import TodoListsAdd from './TodoListsAdd'
-
 import {database} from '../../firebase'
 
 
+const AvatarIco = (props) => {
+    switch (props.type) {
+        case 'general': return <ViewListIcon />;
+        case 'work': return <WorkIcon />;
+        case 'fun': return <WbSunnyIcon />;
+        case 'chat': return <ChatIcon />;
+        default: return null;
+    }
+}
 
 class TodoLists extends Component {
     state = {
         todoLists: null,
 
         newListName: '',
+        newListType: 'general',
+        newListDate: null,
         filterListName: '',
         emptyListToggle: false,
         snackbarOpen: false,
@@ -30,7 +43,7 @@ class TodoLists extends Component {
     }
 
     getLists = () => {
-        database.ref(`/general/lists/`)
+        database.ref(`/global/lists/`)
             .on('value', (snapshot)=>
                 this.setState({todoLists: Object.entries(snapshot.val() || {})})
             )
@@ -45,9 +58,11 @@ class TodoLists extends Component {
     addList = () => {
         if (this.state.newListName) {
             const listObj = {
-                name: this.state.newListName
+                name: this.state.newListName,
+                type: this.state.newListType,
+                date: Date.now()
             }
-            database.ref('/general/lists/')
+            database.ref('/global/lists/')
                 .push(listObj)
                 .then(() => {
                     this.setState({newListName: '', msg: 'List has been added successfully', snackbarOpen: true})
@@ -90,6 +105,7 @@ class TodoLists extends Component {
     // }
 
     handleNewListName = (event) => {this.setState({newListName: event.target.value})}
+    handleNewListType = (event) => {this.setState({newListType: event.target.value})}
     handleFilterListName = (event, value) => {this.setState({filterListName: event.target.value})}
     handleEmptyListToggle = (event, toggle) => {this.setState({emptyListToggle: toggle})}
     handleSnackbarClose = () => {this.setState({snackbarOpen: false})}
@@ -101,6 +117,7 @@ class TodoLists extends Component {
                 <TodoListsAdd
                     state={this.state}
                     handleNewListName={this.handleNewListName}
+                    handleNewListType={this.handleNewListType}
                     addList={this.addList}
 
                 />
@@ -115,7 +132,7 @@ class TodoLists extends Component {
                             .map(([key,val])=>(
                                 <ListItem key={key}>
                                     <Avatar>
-                                        <WorkIcon />
+                                        <AvatarIco type={val.type} />
                                     </Avatar>
                                     <ListItemText primary={val.name} secondary="Jan 9, 2014" />
                                     <ListItemSecondaryAction>

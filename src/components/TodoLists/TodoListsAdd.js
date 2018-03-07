@@ -2,6 +2,8 @@ import React from 'react';
 
 import TextField from 'material-ui/TextField'
 import Button from 'material-ui/Button'
+import { MenuItem } from 'material-ui/Menu';
+import Select from 'material-ui/Select';
 
 
 const TodoListsAdd = (props) => (
@@ -15,6 +17,16 @@ const TodoListsAdd = (props) => (
             value={props.state.newListName}
             onChange={props.handleNewListName}
         />
+        <Select
+            value={props.state.newListType}
+            onChange={props.handleNewListType}
+            fullWidth={true}
+        >
+            <MenuItem value={'general'}><em>General</em></MenuItem>
+            <MenuItem value={'work'}>Work</MenuItem>
+            <MenuItem value={'fun'}>Fun</MenuItem>
+            <MenuItem value={'chat'}>Chat ;)</MenuItem>
+        </Select>
         <Button
             variant={"raised"}
             color={"primary"}

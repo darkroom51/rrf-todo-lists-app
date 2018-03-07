@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Link} from 'react-router-dom'
 import Drawer from 'material-ui/Drawer';
 import List, {ListItem, ListItemIcon, ListItemText} from 'material-ui/List';
-import InboxIcon from 'material-ui-icons/Inbox';
+import ListIcon from 'material-ui-icons/List';
 
 class SideBar extends Component {
     render() {
@@ -12,20 +12,20 @@ class SideBar extends Component {
                 onClose={this.props.drawerToggle}
             >
                 <List style={{width: 250}} component={"nav"}>
-                    <Link to={''} style={{textDecoration: 'none'}} key={'1'}>
+                    <Link to={'/'} style={{textDecoration: 'none'}} key={'1'}>
                         <ListItem button onClick={this.props.drawerToggle}>
                             <ListItemIcon>
-                                <InboxIcon/>
+                                <ListIcon/>
                             </ListItemIcon>
-                            <ListItemText primary="Hello world"/>
+                            <ListItemText primary="Global Lists"/>
                         </ListItem>
                     </Link>
-                    <Link to={''} style={{textDecoration: 'none'}} key={'2'}>
+                    <Link to={'/'} style={{textDecoration: 'none'}} key={'2'}>
                         <ListItem button onClick={this.props.drawerToggle}>
                             <ListItemIcon>
-                                <InboxIcon/>
+                                <ListIcon/>
                             </ListItemIcon>
-                            <ListItemText primary="Hello again"/>
+                            <ListItemText primary="My Lists"/>
                         </ListItem>
                     </Link>
                 </List>
