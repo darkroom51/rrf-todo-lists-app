@@ -2,7 +2,6 @@ import React from 'react'
 import Paper from 'material-ui/Paper'
 import TextField from 'material-ui/TextField'
 import Button from 'material-ui/Button'
-//import {logInWithGoogle} from "../../state/auth";
 
 const styles = {
     container: {
@@ -26,9 +25,9 @@ const styles = {
 const LogIn = (props) => (
     <div style={styles.container}>
         <Paper style={styles.item}>
-            <h1>
+            <h2>
                 Sign In!
-            </h1>
+            </h2>
             <span>with</span>
             <TextField
                 name="email"

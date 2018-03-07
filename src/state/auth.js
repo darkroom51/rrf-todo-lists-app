@@ -58,7 +58,7 @@ export const signUp = (email, password) => (dispatch, getState) => {
 }
 
 export const logOut = () => (dispatch, getState) => {
-    const uid = getState().auth.user.uid
+    //const uid = getState().auth.user.uid
     auth.signOut()
         .then(() => {
             console.log('Logged Out!')

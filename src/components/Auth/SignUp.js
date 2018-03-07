@@ -25,9 +25,9 @@ const styles = {
 const SignUp = (props) => (
     <div style={styles.container}>
         <Paper style={styles.item}>
-            <h1>
+            <h2>
                 Sign Up!
-            </h1>
+            </h2>
             <TextField
                 name="email"
                 placeholder={'E-mail'}

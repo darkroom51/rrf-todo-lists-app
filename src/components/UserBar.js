@@ -16,7 +16,7 @@ class UserBar extends Component {
                     avatar={<Avatar><FaceIcon /></Avatar>}
                     label={`Hi ${this.props.userEmail}`}
                 />
-                <div style={{clear: 'both'}}>&nbsp;</div>
+                <div style={{clear: 'both', height:0}}>&nbsp;</div>
             </div>
         )
     }
