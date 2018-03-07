@@ -1,19 +1,15 @@
 import React, {Component} from 'react';
 
-import {List, ListItem} from 'material-ui/List';
-import Subheader from 'material-ui/Subheader';
-import RaisedButton from 'material-ui/RaisedButton'
-import ActionDelete from 'material-ui/svg-icons/action/delete';
-import CheckBox from 'material-ui/svg-icons/toggle/check-box';
-import CheckBoxOutlineBlank from 'material-ui/svg-icons/toggle/check-box-outline-blank';
-import ArrowBack from 'material-ui/svg-icons/navigation/arrow-back';
-import Snackbar from 'material-ui/Snackbar';
 import Divider from 'material-ui/Divider';
+import Snackbar from 'material-ui/Snackbar';
+import List, { ListItem, ListItemText, ListItemSecondaryAction } from 'material-ui/List';
+import IconButton from 'material-ui/IconButton';
+import DeleteIcon from 'material-ui-icons/Delete';
+import Button from 'material-ui/Button'
 
-import {urlTodoLists, urlTodos} from '../../config';
 import TodoListAdd from './TodoListAdd'
-import TodoListFilter from "./TodoListFilter";
-import TodoListEdit from "./TodoListEdit";
+import {database} from '../../firebase'
+
 
 
 class TodoList extends Component {
@@ -35,99 +31,37 @@ class TodoList extends Component {
     }
 
     getTasks = () => {
-        fetch(`${urlTodoLists}${this.state.listId}/`)
-            .then(response => response.json())
-            .then(data => this.setState({todoList: this.sortTasks(data)}))
-    }
-
-    sortTasks = (arr) => {
-        return arr.sort((a,b)=>{
-            return a.id - b.id
-        })
+        database.ref(`/global/lists/${this.state.listId}/list/`)
+            .on('value', (snapshot)=>
+                this.setState({todoList: Object.entries(snapshot.val() || {})})
+            )
     }
 
     addTask = () => {
         if (this.state.newTaskName) {
-            const taskObj = {
+            const listObj = {
                 name: this.state.newTaskName,
-                is_complete: false,
-                todo_list: this.state.listId
+                completed: false,
+                date: Date.now()
             }
-            fetch(`${urlTodos}`, {
-                method: 'POST',
-                body: JSON.stringify(taskObj),
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            })
-                .then(response => response.json())
-                .then(json => console.log(json))
+            database.ref(`/global/lists/${this.state.listId}/list/`)
+                .push(listObj)
                 .then(() => {
-                    this.getTasks();
                     this.setState({newTaskName: '', msg: 'Task has been added successfully', snackbarOpen: true})
+                })
+                .catch(() => {
+                    this.setState({newTaskName: '', msg: 'Ups,task not added', snackbarOpen: true})
                 })
         }
     }
 
     deleteTask = (taskId) => {
-        fetch(`${urlTodos}${taskId}/`, {
-            method: 'DELETE'
-        })
-            .then(() => {
-                this.getTasks();
-                this.setState({msg: 'Task has been deleted successfully', snackbarOpen: true})
-            })
+        database.ref(`/global/lists/${this.state.listId}/list/${taskId}`)
+            .remove()
     }
 
-    toggleDoneTask = (taskId, taskDone) => {
-        const taskObj = {
-            is_complete: !taskDone
-        }
-        fetch(`${urlTodos}${taskId}/`, {
-            method: 'PATCH',
-            body: JSON.stringify(taskObj),
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            }
-        })
-            .then(response => response.json())
-            .then(json => console.log(json))
-            .then(() => {
-                this.getTasks();
-                this.setState({msg: 'Task "completed/uncompleted" toggled successfully', snackbarOpen: true})
-            })
-            .catch(err => console.log(err))
-    }
 
-    editTask = (taskId, taskName) => {
-        this.setState({editMode: taskId, editTaskName: taskName})
-    }
-
-    updateTask = (taskId, taskName) => {
-        const taskObj = {
-            name: taskName
-        }
-        fetch(`${urlTodos}${taskId}/`, {
-            method: 'PATCH',
-            body: JSON.stringify(taskObj),
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            }
-        })
-            .then(response => response.json())
-            .then(json => console.log(json))
-            .then(() => {
-                this.getTasks();
-                this.setState({editMode: -1, msg: 'Task name has been updated successfully', snackbarOpen: true})
-            })
-            .catch(err => console.log(err))
-    }
-
-    cancelEditTask = () => {
-        this.setState({editMode: -1, editTaskName: ''})
-    }
-
-    handleNewTaskNameInput = (event) => {this.setState({newTaskName: event.target.value})}
+    handleNewTaskName = (event) => {this.setState({newTaskName: event.target.value})}
     handleFilterTaskName = (event, value) => {this.setState({filterTaskName: event.target.value})}
     handleFilterTasksSelect = (event, index, value) => {this.setState({filterTasksSelect: value})}
     handleEditTaskName = (event, value) => {this.setState({editTaskName: event.target.value})}
@@ -139,67 +73,52 @@ class TodoList extends Component {
             <div>
                 <TodoListAdd
                     state={this.state}
-                    handleNewTaskNameInput={this.handleNewTaskNameInput}
+                    handleNewTaskName={this.handleNewTaskName}
                     addTask={this.addTask}
-                />
 
-                <TodoListFilter
-                    state={this.state}
-                    handleFilterTaskName={this.handleFilterTaskName}
-                    handleFilterTasksSelect={this.handleFilterTasksSelect}
                 />
+                <Divider style={{margin:'20px 0 20px 0'}} />
 
-                <List>
-                    <Subheader>Todo List</Subheader>
-                    {
-                        this.state.todoList
-                        &&
-                        this.state.todoList
-                            .filter((el) => el.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").indexOf(this.state.filterTaskName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")) !== -1)
-                            .filter((el) => (this.state.filterTasksSelect === 0 ? true : this.state.filterTasksSelect === 1 ? el.is_complete === false : el.is_complete === true))
-                            .map((el) => (
-                                <div key={el.id}>
-                                    <ListItem
-                                        primaryText={
-                                            <TodoListEdit
-                                                state={this.state}
-                                                el={el}
-                                                editTask={this.editTask}
-                                                handleEditTaskName={this.handleEditTaskName}
-                                                updateTask={this.updateTask}
-                                                cancelEditTask={this.cancelEditTask}
-                                            />
-                                        }
-                                        rightIcon={
-                                            <ActionDelete onClick={() => this.deleteTask(el.id)}/>
-                                        }
-                                        leftIcon={
-                                            el.is_complete === false ?
-                                                <CheckBoxOutlineBlank onClick={() => this.toggleDoneTask(el.id, el.is_complete)}/>
-                                                :
-                                                <CheckBox onClick={() => this.toggleDoneTask(el.id, el.is_complete)}/>
-                                        }
-                                        style={el.is_complete === false ? {textDecoration: 'none'} : {textDecoration: 'line-through', color: '#999'}}
-                                        disabled={true}
-                                    />
-                                    <Divider/>
-                                </div>
-                            ))
-                    }
-                </List>
-                <Divider/>
-                <RaisedButton
-                    label={"back to lists"}
-                    default={true}
-                    fullWidth={true}
-                    icon={<ArrowBack />}
-                    onClick={this.props.history.goBack}
-                />
+                <div>
+                    <List>
+                        {
+                            this.state.todoList
+                            &&
+                            this.state.todoList
+                                .map(([key,val])=>(
+                                    <ListItem button key={key}>
+                                        <ListItemText primary={val.name} secondary={val.completed} />
+                                        <ListItemSecondaryAction>
+                                            <IconButton aria-label="Comments">
+                                                <DeleteIcon onClick={()=>{this.deleteTask(key)}} />
+                                            </IconButton>
+                                        </ListItemSecondaryAction>
+                                    </ListItem>
+                                ))
+                        }
+                    </List>
+                </div>
+                <Divider style={{margin:'20px 0 20px 0'}} />
+
+                <div>
+                    <Button
+                        variant={"raised"}
+                        color={"default"}
+                        fullWidth={true}
+                        onClick={this.props.history.goBack}
+                    >
+                        back to lists
+                    </Button>
+                </div>
+
                 <Snackbar
                     open={this.state.snackbarOpen}
-                    message={this.state.msg}
-                    autoHideDuration={4000}
-                    onRequestClose={this.handleSnackbarClose}
+                    onClose={this.handleSnackbarClose}
+                    autoHideDuration={2000}
+                    SnackbarContentProps={{
+                        'aria-describedby': 'message-id',
+                    }}
+                    message={<span id="message-id">{this.state.msg}</span>}
                 />
             </div>
         );

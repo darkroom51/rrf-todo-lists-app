@@ -10,7 +10,7 @@ import SideBar from './components/SideBar'
 import UserBar from './components/UserBar'
 
 import TodoLists from './components/TodoLists'
-//import TodoList from './components/TodoList'
+import TodoList from './components/TodoList'
 
 import {Provider} from 'react-redux'
 import store from './store'
@@ -42,7 +42,7 @@ class App extends Component {
 
                                 <Paper style={{margin:10, padding:10}}>
                                     <Route path="/" exact={true} component={TodoLists}/>
-                                    {/*<Route path="/todo-list/:id/" component={TodoList}/>*/}
+                                    <Route path="/todo-list/:id/" component={TodoList}/>
                                 </Paper>
                             </div>
                         </Router>

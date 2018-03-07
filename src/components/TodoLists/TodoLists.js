@@ -49,12 +49,6 @@ class TodoLists extends Component {
             )
     }
 
-    sortLists = (arr) => {
-        return arr.sort((a,b)=>{
-            return a.id - b.id
-        })
-    }
-
     addList = () => {
         if (this.state.newListName) {
             const listObj = {
@@ -73,36 +67,11 @@ class TodoLists extends Component {
         }
     }
 
+    deleteList = (listId) => {
+        database.ref(`/global/lists/${listId}`)
+            .remove()
+    }
 
-    // deleteList = (listId) => {
-    //     fetch(`${urlTodoLists}${listId}/`, {
-    //         method: 'DELETE'
-    //     })
-    //         .then(() => {
-    //             this.getLists();
-    //             this.setState({msg: 'List has been deleted successfully', snackbarOpen: true})
-    //         })
-    // }
-    //
-    // updateList = (listId, listName) => {
-    //     const listObj = {
-    //         name: listName
-    //     }
-    //     fetch(`${urlTodoLists}${listId}/`, {
-    //         method: 'PATCH',
-    //         body: JSON.stringify(listObj),
-    //         headers: {
-    //             "Content-type": "application/json; charset=UTF-8"
-    //         }
-    //     })
-    //         .then(response => response.json())
-    //         .then(json => console.log(json))
-    //         .then(() => {
-    //             this.getLists();
-    //             this.setState({msg: 'List name has been updated successfully', snackbarOpen: true})
-    //         })
-    //         .catch(err => console.log(err))
-    // }
 
     handleNewListName = (event) => {this.setState({newListName: event.target.value})}
     handleNewListType = (event) => {this.setState({newListType: event.target.value})}
@@ -130,14 +99,17 @@ class TodoLists extends Component {
                         &&
                         this.state.todoLists
                             .map(([key,val])=>(
-                                <ListItem key={key}>
+                                <ListItem button
+                                          key={key}
+                                          onClick={() => {this.props.history.push(`/todo-list/${key}`)}}
+                                >
                                     <Avatar>
                                         <AvatarIco type={val.type} />
                                     </Avatar>
-                                    <ListItemText primary={val.name} secondary="Jan 9, 2014" />
+                                    <ListItemText primary={val.name} secondary={val.date} />
                                     <ListItemSecondaryAction>
                                         <IconButton aria-label="Comments">
-                                            <SettingsIcon />
+                                            <SettingsIcon onClick={()=>{this.deleteList(key)}} />
                                         </IconButton>
                                     </ListItemSecondaryAction>
                                 </ListItem>
