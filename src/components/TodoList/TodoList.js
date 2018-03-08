@@ -6,8 +6,11 @@ import List, { ListItem, ListItemText, ListItemSecondaryAction } from 'material-
 import IconButton from 'material-ui/IconButton';
 import DeleteIcon from 'material-ui-icons/Delete';
 import Button from 'material-ui/Button'
+import Checkbox from 'material-ui/Checkbox'
 
 import TodoListAdd from './TodoListAdd'
+import TodoListEdit from './TodoListEdit'
+import TodoListFilter from './TodoListFilter'
 import {database} from '../../firebase'
 
 
@@ -20,8 +23,6 @@ class TodoList extends Component {
         newTaskName: '',
         filterTaskName: '',
         filterTasksSelect: 0,
-        editMode: -1,
-        editTaskName: '',
         snackbarOpen: false,
         msg: ''
     }
@@ -47,7 +48,7 @@ class TodoList extends Component {
             database.ref(`/global/lists/${this.state.listId}/list/`)
                 .push(listObj)
                 .then(() => {
-                    this.setState({newTaskName: '', msg: 'Task has been added successfully', snackbarOpen: true})
+                    this.setState({newTaskName: '', msg: 'Task has been added successfully', snackbarOpen: false})
                 })
                 .catch(() => {
                     this.setState({newTaskName: '', msg: 'Ups,task not added', snackbarOpen: true})
@@ -58,13 +59,49 @@ class TodoList extends Component {
     deleteTask = (taskId) => {
         database.ref(`/global/lists/${this.state.listId}/list/${taskId}`)
             .remove()
+            .then(() => {
+                this.setState({msg: 'Task has been deleted successfully', snackbarOpen: false})
+            })
+            .catch(() => {
+                this.setState({msg: 'Ups, task not deleted', snackbarOpen: true})
+            })
+    }
+
+    updateTask = (taskId, taskName) => {
+        if (taskName) {
+            const listObj = {
+                name: taskName
+                //date: Date.now()
+            }
+            database.ref(`/global/lists/${this.state.listId}/list/${taskId}`)
+                .update(listObj)
+                .then(() => {
+                    this.setState({msg: 'Task has been updated successfully', snackbarOpen: false})
+                })
+                .catch(() => {
+                    this.setState({msg: 'Ups, task not updated', snackbarOpen: true})
+                })
+        }
+    }
+
+    toggleDoneTask = (taskId, taskDone) => {
+            const listObj = {
+                completed: !taskDone
+            }
+            database.ref(`/global/lists/${this.state.listId}/list/${taskId}`)
+                .update(listObj)
+                .then(() => {
+                    this.setState({msg: 'Task has been toggled successfully', snackbarOpen: false})
+                })
+                .catch(() => {
+                    this.setState({msg: 'Ups, task not toggled', snackbarOpen: true})
+                })
     }
 
 
     handleNewTaskName = (event) => {this.setState({newTaskName: event.target.value})}
     handleFilterTaskName = (event, value) => {this.setState({filterTaskName: event.target.value})}
     handleFilterTasksSelect = (event, index, value) => {this.setState({filterTasksSelect: value})}
-    handleEditTaskName = (event, value) => {this.setState({editTaskName: event.target.value})}
     handleSnackbarClose = () => {this.setState({snackbarOpen: false,})}
 
 
@@ -72,10 +109,14 @@ class TodoList extends Component {
         return (
             <div>
                 <TodoListAdd
-                    state={this.state}
+                    newTaskName={this.state.newTaskName}
                     handleNewTaskName={this.handleNewTaskName}
                     addTask={this.addTask}
 
+                />
+                <TodoListFilter
+                    filterTaskName={this.state.filterTaskName}
+                    handleFilterTaskName={this.handleFilterTaskName}
                 />
                 <Divider style={{margin:'20px 0 20px 0'}} />
 
@@ -85,12 +126,30 @@ class TodoList extends Component {
                             this.state.todoList
                             &&
                             this.state.todoList
+                                .filter(([key,val]) => val.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").indexOf(this.state.filterTaskName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")) !== -1)
                                 .map(([key,val])=>(
-                                    <ListItem button key={key}>
-                                        <ListItemText primary={val.name} secondary={val.completed} />
+                                    <ListItem button
+                                              key={key}
+                                              onClick={()=>{this.toggleDoneTask(key, val.completed)}}
+                                    >
+                                        <Checkbox
+                                            checked={val.completed}
+                                            tabIndex={-1}
+                                            disableRipple
+                                        />
+                                        <ListItemText primary={val.name}/>
                                         <ListItemSecondaryAction>
                                             <IconButton aria-label="Comments">
-                                                <DeleteIcon onClick={()=>{this.deleteTask(key)}} />
+                                                <TodoListEdit
+                                                    id={key}
+                                                    name={val.name}
+                                                    updateTask={this.updateTask}
+                                                />
+                                            </IconButton>
+                                            <IconButton aria-label="Comments">
+                                                <DeleteIcon
+                                                    onClick={()=>{this.deleteTask(key)}}
+                                                />
                                             </IconButton>
                                         </ListItemSecondaryAction>
                                     </ListItem>

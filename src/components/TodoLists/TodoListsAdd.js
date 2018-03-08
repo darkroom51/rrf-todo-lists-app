@@ -14,11 +14,11 @@ const TodoListsAdd = (props) => (
             placeholder="Enter name ..."
             margin="normal"
             fullWidth={true}
-            value={props.state.newListName}
+            value={props.newListName}
             onChange={props.handleNewListName}
         />
         <Select
-            value={props.state.newListType}
+            value={props.newListType}
             onChange={props.handleNewListType}
             fullWidth={true}
         >

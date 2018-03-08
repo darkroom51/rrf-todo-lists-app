@@ -12,7 +12,7 @@ const TodoListAdd = (props) => (
             placeholder="Enter task ..."
             margin="normal"
             fullWidth={true}
-            value={props.state.newTaskName}
+            value={props.newTaskName}
             onChange={props.handleNewTaskName}
         />
         <Button

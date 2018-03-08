@@ -10,8 +10,12 @@ import WorkIcon from 'material-ui-icons/Work';
 import ChatIcon from 'material-ui-icons/Chat';
 import ViewListIcon from 'material-ui-icons/ViewList';
 import WbSunnyIcon from 'material-ui-icons/WbSunny';
+import Menu from 'material-ui/Menu';
 
 import TodoListsAdd from './TodoListsAdd'
+import TodoListsEdit from './TodoListsEdit'
+import TodoListsDelete from './TodoListsDelete'
+import TodoListsFilter from './TodoListsFilter'
 import {database} from '../../firebase'
 
 
@@ -35,6 +39,8 @@ class TodoLists extends Component {
         filterListName: '',
         emptyListToggle: false,
         snackbarOpen: false,
+        anchorEl: null,
+        dialogOpen: false,
         msg: ''
     }
 
@@ -70,25 +76,57 @@ class TodoLists extends Component {
     deleteList = (listId) => {
         database.ref(`/global/lists/${listId}`)
             .remove()
+            .then(() => {
+                this.setState({msg: 'List has been deleted successfully', snackbarOpen: true})
+            })
+            .catch(() => {
+                this.setState({msg: 'Ups, list not deleted', snackbarOpen: true})
+            })
+    }
+
+    updateList = (listId, listName, listType) => {
+        if (listName) {
+            const listObj = {
+                name: listName,
+                type: listType,
+                //date: Date.now()
+            }
+            database.ref(`/global/lists/${listId}`)
+                .update(listObj)
+                .then(() => {
+                    this.setState({newListName: '', msg: 'List has been updated successfully', snackbarOpen: true})
+                })
+                .catch(() => {
+                    this.setState({newListName: '', msg: 'Ups, list not updated', snackbarOpen: true})
+                })
+        }
     }
 
 
     handleNewListName = (event) => {this.setState({newListName: event.target.value})}
     handleNewListType = (event) => {this.setState({newListType: event.target.value})}
     handleFilterListName = (event, value) => {this.setState({filterListName: event.target.value})}
-    handleEmptyListToggle = (event, toggle) => {this.setState({emptyListToggle: toggle})}
     handleSnackbarClose = () => {this.setState({snackbarOpen: false})}
+    handleMenuClick = event => {this.setState({ anchorEl: event.currentTarget })};
+    handleMenuClose = () => {this.setState({ anchorEl: null })};
 
 
     render() {
+        const { anchorEl } = this.state;
+
         return (
             <div>
                 <TodoListsAdd
-                    state={this.state}
+                    newListName={this.state.newListName}
+                    newListType={this.state.newListType}
                     handleNewListName={this.handleNewListName}
                     handleNewListType={this.handleNewListType}
                     addList={this.addList}
 
+                />
+                <TodoListsFilter
+                    filterListName={this.state.filterListName}
+                    handleFilterListName={this.handleFilterListName}
                 />
                 <Divider style={{margin:'20px 0 20px 0'}} />
 
@@ -98,6 +136,7 @@ class TodoLists extends Component {
                         this.state.todoLists
                         &&
                         this.state.todoLists
+                            .filter(([key,val]) => val.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").indexOf(this.state.filterListName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")) !== -1)
                             .map(([key,val])=>(
                                 <ListItem button
                                           key={key}
@@ -109,7 +148,29 @@ class TodoLists extends Component {
                                     <ListItemText primary={val.name} secondary={val.date} />
                                     <ListItemSecondaryAction>
                                         <IconButton aria-label="Comments">
-                                            <SettingsIcon onClick={()=>{this.deleteList(key)}} />
+                                            <SettingsIcon aria-owns={anchorEl ? 'simple-menu' : null}
+                                                          aria-haspopup="true"
+                                                          onClick={this.handleMenuClick}
+                                            />
+                                            <Menu
+                                                id="simple-menu"
+                                                anchorEl={anchorEl}
+                                                open={Boolean(anchorEl)}
+                                                onClose={this.handleMenuClose}
+                                            >
+                                                <TodoListsEdit
+                                                    id={key}
+                                                    name={val.name}
+                                                    type={val.type}
+                                                    handleMenuClose={this.handleMenuClose}
+                                                    updateList={this.updateList}
+                                                />
+                                                <TodoListsDelete
+                                                    id={key}
+                                                    handleMenuClose={this.handleMenuClose}
+                                                    deleteList={this.deleteList}
+                                                />
+                                            </Menu>
                                         </IconButton>
                                     </ListItemSecondaryAction>
                                 </ListItem>
