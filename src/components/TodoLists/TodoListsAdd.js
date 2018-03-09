@@ -25,7 +25,7 @@ const TodoListsAdd = (props) => (
             <MenuItem value={'general'}><em>General</em></MenuItem>
             <MenuItem value={'work'}>Work</MenuItem>
             <MenuItem value={'fun'}>Fun</MenuItem>
-            <MenuItem value={'chat'}>Chat ;)</MenuItem>
+            {/*<MenuItem value={'chat'}>Chat ;)</MenuItem>*/}
         </Select>
         <Button
             variant={"raised"}

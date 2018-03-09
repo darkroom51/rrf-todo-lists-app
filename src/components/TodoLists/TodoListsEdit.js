@@ -61,7 +61,7 @@ class TodoListsEdit extends Component {
                             <MenuItem value={'general'}><em>General</em></MenuItem>
                             <MenuItem value={'work'}>Work</MenuItem>
                             <MenuItem value={'fun'}>Fun</MenuItem>
-                            <MenuItem value={'chat'}>Chat ;)</MenuItem>
+                            {/*<MenuItem value={'chat'}>Chat ;)</MenuItem>*/}
                         </Select>
                     </DialogContent>
                     <DialogActions>

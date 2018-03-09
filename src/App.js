@@ -8,9 +8,9 @@ import Auth from './components/Auth'
 import AppBar from './components/AppBar'
 import SideBar from './components/SideBar'
 import UserBar from './components/UserBar'
-
 import TodoLists from './components/TodoLists'
 import TodoList from './components/TodoList'
+import TodoChat from './components/TodoChat'
 
 import {Provider} from 'react-redux'
 import store from './store'
@@ -43,6 +43,7 @@ class App extends Component {
                                 <Paper style={{margin:10, padding:10}}>
                                     <Route path="/" exact={true} component={TodoLists}/>
                                     <Route path="/todo-list/:id/" component={TodoList}/>
+                                    <Route path="/todo-chat/" component={TodoChat}/>
                                 </Paper>
                             </div>
                         </Router>

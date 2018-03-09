@@ -11,6 +11,8 @@ import Checkbox from 'material-ui/Checkbox'
 import TodoListAdd from './TodoListAdd'
 import TodoListEdit from './TodoListEdit'
 import TodoListFilter from './TodoListFilter'
+
+import {connect} from 'react-redux'
 import {database} from '../../firebase'
 
 
@@ -32,7 +34,7 @@ class TodoList extends Component {
     }
 
     getTasks = () => {
-        database.ref(`/global/lists/${this.state.listId}/list/`)
+        database.ref(`/users/${this.props.uuid}/lists/${this.state.listId}/list/`)
             .on('value', (snapshot)=>
                 this.setState({todoList: Object.entries(snapshot.val() || {})})
             )
@@ -45,7 +47,7 @@ class TodoList extends Component {
                 completed: false,
                 date: Date.now()
             }
-            database.ref(`/global/lists/${this.state.listId}/list/`)
+            database.ref(`/users/${this.props.uuid}/lists/${this.state.listId}/list/`)
                 .push(listObj)
                 .then(() => {
                     this.setState({newTaskName: '', msg: 'Task has been added successfully', snackbarOpen: false})
@@ -57,7 +59,7 @@ class TodoList extends Component {
     }
 
     deleteTask = (taskId) => {
-        database.ref(`/global/lists/${this.state.listId}/list/${taskId}`)
+        database.ref(`/users/${this.props.uuid}/lists/${this.state.listId}/list/${taskId}`)
             .remove()
             .then(() => {
                 this.setState({msg: 'Task has been deleted successfully', snackbarOpen: false})
@@ -73,7 +75,7 @@ class TodoList extends Component {
                 name: taskName
                 //date: Date.now()
             }
-            database.ref(`/global/lists/${this.state.listId}/list/${taskId}`)
+            database.ref(`/users/${this.props.uuid}/lists/${this.state.listId}/list/${taskId}`)
                 .update(listObj)
                 .then(() => {
                     this.setState({msg: 'Task has been updated successfully', snackbarOpen: false})
@@ -88,7 +90,7 @@ class TodoList extends Component {
             const listObj = {
                 completed: !taskDone
             }
-            database.ref(`/global/lists/${this.state.listId}/list/${taskId}`)
+            database.ref(`/users/${this.props.uuid}/lists/${this.state.listId}/list/${taskId}`)
                 .update(listObj)
                 .then(() => {
                     this.setState({msg: 'Task has been toggled successfully', snackbarOpen: false})
@@ -187,4 +189,14 @@ class TodoList extends Component {
     }
 }
 
-export default TodoList;
+const mapStateToProps = state => ({
+    uuid: state.auth.user.uid
+})
+
+
+const mapDispatchToProps = dispatch => ({})
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(TodoList)

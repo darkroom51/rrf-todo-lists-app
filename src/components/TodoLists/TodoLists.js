@@ -16,8 +16,11 @@ import TodoListsAdd from './TodoListsAdd'
 import TodoListsEdit from './TodoListsEdit'
 import TodoListsDelete from './TodoListsDelete'
 import TodoListsFilter from './TodoListsFilter'
-import {database} from '../../firebase'
+
 import moment from 'moment'
+import {connect} from 'react-redux'
+import {database} from '../../firebase'
+
 
 
 const AvatarIco = (props) => {
@@ -50,7 +53,7 @@ class TodoLists extends Component {
     }
 
     getLists = () => {
-        database.ref(`/global/lists/`)
+        database.ref(`/users/${this.props.uuid}/lists/`)
             .on('value', (snapshot)=>
                 this.setState({todoLists: Object.entries(snapshot.val() || {})})
             )
@@ -63,7 +66,7 @@ class TodoLists extends Component {
                 type: this.state.newListType,
                 date: Date.now()
             }
-            database.ref('/global/lists/')
+            database.ref(`/users/${this.props.uuid}/lists/`)
                 .push(listObj)
                 .then(() => {
                     this.setState({newListName: '', msg: 'List has been added successfully', snackbarOpen: true})
@@ -75,7 +78,7 @@ class TodoLists extends Component {
     }
 
     deleteList = (listId) => {
-        database.ref(`/global/lists/${listId}`)
+        database.ref(`/users/${this.props.uuid}/lists/${listId}`)
             .remove()
             .then(() => {
                 this.setState({msg: 'List has been deleted successfully', snackbarOpen: true})
@@ -92,7 +95,7 @@ class TodoLists extends Component {
                 type: listType,
                 //date: Date.now()
             }
-            database.ref(`/global/lists/${listId}`)
+            database.ref(`/users/${this.props.uuid}/lists/${listId}`)
                 .update(listObj)
                 .then(() => {
                     this.setState({newListName: '', msg: 'List has been updated successfully', snackbarOpen: true})
@@ -194,4 +197,15 @@ class TodoLists extends Component {
     }
 }
 
-export default TodoLists;
+
+const mapStateToProps = state => ({
+    uuid: state.auth.user.uid
+})
+
+
+const mapDispatchToProps = dispatch => ({})
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(TodoLists)

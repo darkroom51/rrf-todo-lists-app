@@ -6,6 +6,7 @@ import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import IconButton from 'material-ui/IconButton';
 import CheckBoxIcon from 'material-ui-icons/CheckBox';
+import Reboot from 'material-ui/Reboot';
 
 import {connect} from 'react-redux'
 
@@ -14,6 +15,7 @@ const Auth  = (props) => (
                 props.children
                 :
                 <div>
+                    <Reboot/>
                     <MuiAppBar position="static">
                         <Toolbar>
                             <IconButton  color="inherit" aria-label="Menu">
