@@ -18,7 +18,7 @@ class SideBar extends Component {
                             <ListItemIcon>
                                 <ListIcon/>
                             </ListItemIcon>
-                            <ListItemText primary="My Lists"/>
+                            <ListItemText primary="My Todo Lists"/>
                         </ListItem>
                     </Link>
                     <Link to={'/todo-chat/'} style={{textDecoration: 'none'}} key={'1'}>
