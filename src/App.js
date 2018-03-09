@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router, Route} from 'react-router-dom'
+import './App.css'
 
 import Reboot from 'material-ui/Reboot';
 import Paper from 'material-ui/Paper'
@@ -31,7 +32,7 @@ class App extends Component {
             <Provider store={store}>
                     <Auth>
                         <Router>
-                            <div>
+                            <div className="wld-container">
                                 <Reboot />
                                 <AppBar drawerToggle={this.drawerToggle}/>
                                 <UserBar />
@@ -40,7 +41,7 @@ class App extends Component {
                                     drawerToggle={this.drawerToggle}
                                 />
 
-                                <Paper style={{margin:10, padding:10}}>
+                                <Paper className="wld-paper-pm">
                                     <Route path="/" exact={true} component={TodoLists}/>
                                     <Route path="/todo-list/:id/" component={TodoList}/>
                                     <Route path="/todo-chat/" component={TodoChat}/>

@@ -7,6 +7,7 @@ body{
 .wld-container{
   position: relative;
   width: 100%;
+  min-height: 100vh;
   max-width: 640px;
   margin: 0 auto;
   padding: 0;
@@ -17,6 +18,11 @@ body{
 .wld-paper-pm{
   padding:20px;
   margin:20px;
+}
+
+.wld-userbar{
+  margin: 10px 20px -5px 0;
+  float: right;
 }
 
 @media (max-width: 640px){
@@ -34,6 +40,9 @@ body{
   .wld-paper-pm{
     padding:10px;
     margin:10px;
+  }
+  .wld-userbar{
+    margin: 10px 10px 0px 0;
   }
 }
 

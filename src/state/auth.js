@@ -6,6 +6,7 @@ import {database, auth, googleProvider} from '../firebase'
 
 const SET_USER = 'auth/SET_USER'
 const SET_LOGIN_LOGS = 'auth/SET_LOGIN_LOGS'
+const SET_LOGIN_MSG = 'auth/SET_LOGIN_MSG'
 
 const setUser = (user) => ({ //kreator akcji zwyklej
     type: SET_USER,
@@ -16,6 +17,13 @@ const setLoginLogs = (logs) => ({
     type: SET_LOGIN_LOGS,
     logsData: logs
 })
+
+const setLoginMsg = (msg) => ({
+    type: SET_LOGIN_MSG,
+    loginMsg: msg
+})
+
+
 
 export const initAuth = () => (dispatch, getState) => {
     auth.onAuthStateChanged((user) => {
@@ -48,13 +56,13 @@ const logLoginDate = () => (dispatch, getState) => {
 export const logIn = (email, password) => (dispatch, getState) => {
     auth.signInWithEmailAndPassword(email, password)
         .then(() => console.log('Logged in!'))
-        .catch(() => alert('Something wrong with Login!'))
+        .catch(() => dispatch(setLoginMsg('Something wrong with Login!')))
 }
 
 export const signUp = (email, password) => (dispatch, getState) => {
     auth.createUserWithEmailAndPassword(email, password)
         .then(() => console.log('Signed Up!'))
-        .catch(() => alert('Something wrong with SignUp!'))
+        .catch(() => dispatch(setLoginMsg('Something wrong with SignUp!')))
 }
 
 export const logOut = () => (dispatch, getState) => {
@@ -64,21 +72,22 @@ export const logOut = () => (dispatch, getState) => {
             console.log('Logged Out!')
             // dispatch(stopSyncingMeals(uid))
         })
-        .catch(() => alert('Something wrong with LogOut!'))
+        .catch(() => dispatch(setLoginMsg('Something wrong with LogOut!')))
 }
 
 export const logInWithGoogle = () => (dispatch, getState) => {
     auth.signInWithPopup(googleProvider)
         .then(() => console.log('Logged in!'))
-        .catch(() => alert('Something wrong with Login!'))
+        .catch(() => dispatch(setLoginMsg('Something wrong with G Login!')))
 }
 
 
 
 const initialState = {
-    user: null
+    user: null,
+    msg: '',
+    snackbarOpen: false,
 }
-
 
 
 
@@ -93,6 +102,13 @@ export default (state = initialState, action) => {
             return {
                 ...state,
                 loginLogs: action.logsData
+            }
+        }
+        case SET_LOGIN_MSG:{
+            return {
+                ...state,
+                msg: action.loginMsg,
+                snackbarOpen: true,
             }
         }
         default:

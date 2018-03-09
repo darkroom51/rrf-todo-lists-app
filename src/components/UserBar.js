@@ -12,7 +12,7 @@ class UserBar extends Component {
         return (
             <div>
                 <Chip
-                    style={{margin: '10px 20px 0 0', float: 'right'}}
+                    className="wld-userbar"
                     avatar={<Avatar><FaceIcon /></Avatar>}
                     label={`Hi ${this.props.userEmail}`}
                 />
