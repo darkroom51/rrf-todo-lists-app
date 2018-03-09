@@ -25,7 +25,7 @@ class Auth extends Component {
             this.props.userData ?
                 this.props.children
                 :
-                <div>
+                <div className="wld-container">
                     <Reboot/>
                     <MuiAppBar position="static">
                         <Toolbar>

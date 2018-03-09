@@ -3,11 +3,12 @@ import thunk from 'redux-thunk'
 
 
 import authReducer, {initAuth} from './state/auth'
+import chatReducer from './state/chat'
 
 
 const reducer = combineReducers({
-    auth: authReducer
-
+    auth: authReducer,
+    chat: chatReducer
 })
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
@@ -21,8 +22,6 @@ const store = createStore(
 
 
 store.dispatch(initAuth())
-// store.dispatch(fetchProducts())
-// store.dispatch(fetchUsers())
 
 
 export default store

@@ -1,14 +1,14 @@
 import {database, auth, googleProvider} from '../firebase'
-// import {stopSyncingMeals} from './meals'
-//
-// import {fetchFav} from './fav'
-// import {fetchMeals} from './meals'
+import {syncChat, stopSyncingChat} from './chat'
+
+// import {syncLists, stopSyncingLists} from './lists'
+// import {syncList, stopSyncingList} from './list'
 
 const SET_USER = 'auth/SET_USER'
 const SET_LOGIN_LOGS = 'auth/SET_LOGIN_LOGS'
 const SET_LOGIN_MSG = 'auth/SET_LOGIN_MSG'
 
-const setUser = (user) => ({ //kreator akcji zwyklej
+const setUser = (user) => ({
     type: SET_USER,
     userData: user
 })
@@ -33,20 +33,21 @@ export const initAuth = () => (dispatch, getState) => {
         if(user){ //if not null user is logged in, so set his record in DB
             dispatch(logLoginDate())
             dispatch(syncLoginLogs())
-            // dispatch(fetchFav())
-            // dispatch(fetchMeals())
+            dispatch(syncChat())
+            // dispatch(syncLists())
+            // dispatch(syncList())
         }
     })
 }
 
 const syncLoginLogs = () => (dispatch, getState) =>{
-    const uid = getState().auth.user.uid   //pobierz ze storu reduxa stan przez getState()
+    const uid = getState().auth.user.uid
     database.ref(`/users/${uid}/loginLogs`)
         .on('value', (snapshot)=>dispatch(setLoginLogs(snapshot.val())))
 }
 
 const logLoginDate = () => (dispatch, getState) => {
-    const uid = getState().auth.user.uid   //pobierz ze storu reduxa stan przez getState()
+    const uid = getState().auth.user.uid
     database.ref(`/users/${uid}/loginLogs`)
         .push({timestamp: Date.now()})
         .then(() => console.log('LogIn Date pushed to DB!'))
@@ -70,7 +71,7 @@ export const logOut = () => (dispatch, getState) => {
     auth.signOut()
         .then(() => {
             console.log('Logged Out!')
-            // dispatch(stopSyncingMeals(uid))
+            dispatch(stopSyncingChat())
         })
         .catch(() => dispatch(setLoginMsg('Something wrong with LogOut!')))
 }

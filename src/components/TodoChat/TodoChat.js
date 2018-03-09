@@ -3,21 +3,21 @@ import {Link} from 'react-router-dom'
 
 import Divider from 'material-ui/Divider';
 import Snackbar from 'material-ui/Snackbar';
-import List, { ListItem, ListItemText, ListItemSecondaryAction } from 'material-ui/List';
+import List, {ListItem, ListItemText, ListItemSecondaryAction} from 'material-ui/List';
 import IconButton from 'material-ui/IconButton';
 import Button from 'material-ui/Button'
 import NotInterestedIcon from 'material-ui-icons/NotInterested';
+import DeleteIcon from 'material-ui-icons/Delete';
 
 import TodoChatAdd from './TodoChatAdd'
 import TodoChatEdit from './TodoChatEdit'
 
 import {connect} from 'react-redux'
-import {database} from '../../firebase'
+import {pushMessage, updateMessage, removeMessage} from "../../state/chat";
 
 
 class TodoChat extends Component {
     state = {
-        todoList: null,
         listId: this.props.match.params.id,
 
         newTaskName: '',
@@ -27,16 +27,6 @@ class TodoChat extends Component {
         msg: ''
     }
 
-    componentDidMount() {
-        this.getTasks();
-    }
-
-    getTasks = () => {
-        database.ref(`/chat/list/`)
-            .on('value', (snapshot)=>
-                this.setState({todoList: Object.entries(snapshot.val() || {})})
-            )
-    }
 
     addTask = () => {
         if (this.state.newTaskName) {
@@ -46,14 +36,8 @@ class TodoChat extends Component {
                 dateAdd: Date.now(),
                 dateEdit: Date.now()
             }
-            database.ref(`/chat/list/`)
-                .push(listObj)
-                .then(() => {
-                    this.setState({newTaskName: '', msg: 'Task has been added successfully', snackbarOpen: false})
-                })
-                .catch(() => {
-                    this.setState({newTaskName: '', msg: 'Ups,task not added', snackbarOpen: true})
-                })
+            this.props.pushMessage(listObj)
+            this.setState({newTaskName:''})
         }
     }
 
@@ -63,15 +47,12 @@ class TodoChat extends Component {
                 name: taskName,
                 dateEdit: Date.now()
             }
-            database.ref(`/chat/list/${taskId}`)
-                .update(listObj)
-                .then(() => {
-                    this.setState({msg: 'Task message updated :)', snackbarOpen: true})
-                })
-                .catch(() => {
-                    this.setState({msg: 'Ups, task message not updated', snackbarOpen: true})
-                })
+            this.props.updateMessage(taskId, listObj)
         }
+    }
+
+    deleteTask = (id) => {
+        this.props.removeMessage(id)
     }
 
 
@@ -88,16 +69,16 @@ class TodoChat extends Component {
                     addTask={this.addTask}
 
                 />
-                <Divider style={{margin:'20px 0 20px 0'}} />
+                <Divider style={{margin: '20px 0 20px 0'}}/>
 
                 <div>
                     <List>
                         {
-                            this.state.todoList
+                            this.props.chatData
                             &&
-                            this.state.todoList
-                                .filter(([key,val]) => val.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").indexOf(this.state.filterTaskName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")) !== -1)
-                                .map(([key,val])=>(
+                            this.props.chatData
+                                .filter(([key, val]) => val.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").indexOf(this.state.filterTaskName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")) !== -1)
+                                .map(([key, val]) => (
                                     <ListItem button key={key}>
                                         <ListItemText primary={val.name} secondary={val.email}/>
                                         <ListItemSecondaryAction>
@@ -111,26 +92,35 @@ class TodoChat extends Component {
                                                             updateTask={this.updateTask}
                                                         />
                                                         :
-                                                        <NotInterestedIcon />
+                                                        <NotInterestedIcon/>
                                                 }
                                             </IconButton>
+                                                {
+                                                    this.props.email === 'w@w.pl'
+                                                        ?
+                                                        <IconButton>
+                                                            <DeleteIcon onClick={()=>{this.deleteTask(key)}}/>
+                                                        </IconButton>
+                                                        :
+                                                        null
+                                                }
                                         </ListItemSecondaryAction>
                                     </ListItem>
                                 ))
                         }
                     </List>
                 </div>
-                <Divider style={{margin:'20px 0 20px 0'}} />
+                <Divider style={{margin: '20px 0 20px 0'}}/>
 
                 <div>
                     <Link to="/">
-                    <Button
-                        variant={"raised"}
-                        color={"default"}
-                        fullWidth={true}
-                    >
-                        back to lists
-                    </Button>
+                        <Button
+                            variant={"raised"}
+                            color={"default"}
+                            fullWidth={true}
+                        >
+                            back to lists
+                        </Button>
                     </Link>
                 </div>
 
@@ -149,12 +139,17 @@ class TodoChat extends Component {
 }
 
 const mapStateToProps = state => ({
+    chatData: Object.entries(state.chat.chatData),
     uuid: state.auth.user.uid,
     email: state.auth.user.email
 })
 
 
-const mapDispatchToProps = dispatch => ({})
+const mapDispatchToProps = dispatch => ({
+    pushMessage: (newMessage) => dispatch(pushMessage(newMessage)),
+    updateMessage: (id, updatedMessage) => dispatch(updateMessage(id, updatedMessage)),
+    removeMessage: (id) => dispatch(removeMessage(id))
+})
 
 export default connect(
     mapStateToProps,

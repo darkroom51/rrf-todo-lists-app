@@ -1,40 +1,75 @@
 import {database} from '../firebase'
 
-const SET_CHATS = 'chat/SET_CHATS'
+const SET_CHAT = 'chat/SET_CHAT'
+const SET_NEW_MESSAGE = 'chat/SET_NEW_MESSAGE'
+//const SET_UPDATED_MESSAGE = 'chat/SET_UPDATED_MESSAGE'
 
 
-const setChats = (chats) => ({
-    type: SET_CHATS,
-    chatsData: chats
+const setChat = (chat) => ({
+    type: SET_CHAT,
+    chat: chat
 })
 
+const setNewMessage = (newMessage) => ({
+    type: SET_NEW_MESSAGE,
+    newMessage
+})
 
-export const syncChats = () => (dispatch, getState) => {
-    const uid = getState().auth.user.uid
-    database.ref(`/users/${uid}/meals`)
+export const syncChat = () => (dispatch, getState) => {
+    database.ref(`/chat/list/`)
         .on('value', (snapshot) => {
-            console.log('Syncing', uid)
-            dispatch(setChats(snapshot.val() || {}))
+            dispatch(setChat(snapshot.val() || {}))
         })
 }
 
-export const stopSyncingMeals = (uid) => (dispatch, getState) => {
-    database.ref(`/users/${uid}/meals`)
+export const stopSyncingChat = () => (dispatch, getState) => {
+    database.ref(`/chat/list/`)
         .off('value')
+}
+
+export const pushMessage = (obj) => (dispatch, getState) => {
+    dispatch(setNewMessage(obj))
+    database.ref(`/chat/list/`)
+        .push(getState().chat.newMessage)
+        .then(() => {})
+        .catch(() => {})
+}
+
+export const updateMessage = (id, obj) => (dispatch, getState) => {
+    // not thru store ?? how it should be ??
+    database.ref(`/chat/list/${id}`)
+        .update(obj)
+        .then(() => {})
+        .catch(() => {})
+}
+
+export const removeMessage = (id) => (dispatch, getState) => {
+    // not thru store ?? how it should be ??
+    database.ref(`/chat/list/${id}`)
+        .remove()
+        .then(() => {})
+        .catch(() => {})
 }
 
 
 const initialState = {
-    mealsData: {}
+    chatData: {},
+    newMessage: {},
+    //updatedMessage: {}
 }
 
 
 export default (state = initialState, action) => {
     switch (action.type) {
-        case FETCH_MEALS:
+        case SET_CHAT:
             return {
                 ...state,
-                mealsData: action.meals
+                chatData: action.chat
+            }
+        case SET_NEW_MESSAGE:
+            return {
+                ...state,
+                newMessage: action.newMessage
             }
         default:
             return state
