@@ -17,6 +17,7 @@ import TodoListsEdit from './TodoListsEdit'
 import TodoListsDelete from './TodoListsDelete'
 import TodoListsFilter from './TodoListsFilter'
 import {database} from '../../firebase'
+import moment from 'moment'
 
 
 const AvatarIco = (props) => {
@@ -145,7 +146,7 @@ class TodoLists extends Component {
                                     <Avatar>
                                         <AvatarIco type={val.type} />
                                     </Avatar>
-                                    <ListItemText primary={val.name} secondary={val.date} />
+                                    <ListItemText primary={val.name} secondary={moment(val.date).format("YYYY-MM-DD")} />
                                     <ListItemSecondaryAction>
                                         <IconButton aria-label="Comments">
                                             <SettingsIcon aria-owns={anchorEl ? 'simple-menu' : null}

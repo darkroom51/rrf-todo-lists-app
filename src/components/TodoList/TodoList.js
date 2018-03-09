@@ -100,8 +100,8 @@ class TodoList extends Component {
 
 
     handleNewTaskName = (event) => {this.setState({newTaskName: event.target.value})}
-    handleFilterTaskName = (event, value) => {this.setState({filterTaskName: event.target.value})}
-    handleFilterTasksSelect = (event, index, value) => {this.setState({filterTasksSelect: value})}
+    handleFilterTaskName = (event) => {this.setState({filterTaskName: event.target.value})}
+    handleFilterTasksSelect = (event) => {this.setState({filterTasksSelect: event.target.value})}
     handleSnackbarClose = () => {this.setState({snackbarOpen: false,})}
 
 
@@ -116,7 +116,9 @@ class TodoList extends Component {
                 />
                 <TodoListFilter
                     filterTaskName={this.state.filterTaskName}
+                    filterTasksSelect={this.state.filterTasksSelect}
                     handleFilterTaskName={this.handleFilterTaskName}
+                    handleFilterTasksSelect={this.handleFilterTasksSelect}
                 />
                 <Divider style={{margin:'20px 0 20px 0'}} />
 
@@ -127,6 +129,7 @@ class TodoList extends Component {
                             &&
                             this.state.todoList
                                 .filter(([key,val]) => val.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").indexOf(this.state.filterTaskName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")) !== -1)
+                                .filter(([key,val]) => (this.state.filterTasksSelect === 0 ? true : this.state.filterTasksSelect === 1 ? val.completed === false : val.completed === true))
                                 .map(([key,val])=>(
                                     <ListItem button
                                               key={key}
