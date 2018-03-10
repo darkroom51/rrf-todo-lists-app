@@ -19,8 +19,7 @@ import TodoListsFilter from './TodoListsFilter'
 
 import moment from 'moment'
 import {connect} from 'react-redux'
-import {database} from '../../firebase'
-
+import {pushList, updateList, removeList} from '../../state/lists'
 
 
 const AvatarIco = (props) => {
@@ -35,28 +34,13 @@ const AvatarIco = (props) => {
 
 class TodoLists extends Component {
     state = {
-        todoLists: null,
-
         newListName: '',
         newListType: 'general',
         newListDate: null,
         filterListName: '',
-        emptyListToggle: false,
-        snackbarOpen: false,
         anchorEl: null,
         dialogOpen: false,
-        msg: ''
-    }
-
-    componentDidMount() {
-        this.getLists()
-    }
-
-    getLists = () => {
-        database.ref(`/users/${this.props.uuid}/lists/`)
-            .on('value', (snapshot)=>
-                this.setState({todoLists: Object.entries(snapshot.val() || {})})
-            )
+        snackbarOpen: false
     }
 
     addList = () => {
@@ -66,44 +50,26 @@ class TodoLists extends Component {
                 type: this.state.newListType,
                 date: Date.now()
             }
-            database.ref(`/users/${this.props.uuid}/lists/`)
-                .push(listObj)
-                .then(() => {
-                    this.setState({newListName: '', msg: 'List has been added successfully', snackbarOpen: true})
-                })
-                .catch(() => {
-                    this.setState({newListName: '', msg: 'Ups, list not added', snackbarOpen: true})
-                })
+            this.props.pushList(listObj)
+            this.setState({newListName:'', snackbarOpen:true})
         }
-    }
-
-    deleteList = (listId) => {
-        database.ref(`/users/${this.props.uuid}/lists/${listId}`)
-            .remove()
-            .then(() => {
-                this.setState({msg: 'List has been deleted successfully', snackbarOpen: true})
-            })
-            .catch(() => {
-                this.setState({msg: 'Ups, list not deleted', snackbarOpen: true})
-            })
     }
 
     updateList = (listId, listName, listType) => {
         if (listName) {
             const listObj = {
                 name: listName,
-                type: listType,
-                //date: Date.now()
+                type: listType
             }
-            database.ref(`/users/${this.props.uuid}/lists/${listId}`)
-                .update(listObj)
-                .then(() => {
-                    this.setState({newListName: '', msg: 'List has been updated successfully', snackbarOpen: true})
-                })
-                .catch(() => {
-                    this.setState({newListName: '', msg: 'Ups, list not updated', snackbarOpen: true})
-                })
+
+            this.props.updateList(listId, listObj)
+            this.setState({snackbarOpen:true})
         }
+    }
+
+    deleteList = (listId) => {
+        this.props.removeList(listId)
+        this.setState({snackbarOpen:true})
     }
 
 
@@ -137,9 +103,9 @@ class TodoLists extends Component {
                 <div>
                     <List>
                     {
-                        this.state.todoLists
+                        this.props.listsData
                         &&
-                        this.state.todoLists
+                        this.props.listsData
                             .filter(([key,val]) => val.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").indexOf(this.state.filterListName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")) !== -1)
                             .map(([key,val])=>(
                                 <ListItem button
@@ -190,7 +156,7 @@ class TodoLists extends Component {
                     SnackbarContentProps={{
                         'aria-describedby': 'message-id',
                     }}
-                    message={<span id="message-id">{this.state.msg}</span>}
+                    message={<span id="message-id">{this.props.msg}</span>}
                 />
             </div>
         );
@@ -199,11 +165,17 @@ class TodoLists extends Component {
 
 
 const mapStateToProps = state => ({
-    uuid: state.auth.user.uid
+    listsData: Object.entries(state.lists.listsData),
+    uuid: state.auth.user.uid,
+    msg: state.lists.msg
 })
 
 
-const mapDispatchToProps = dispatch => ({})
+const mapDispatchToProps = dispatch => ({
+    pushList: (newList) => dispatch(pushList(newList)),
+    updateList: (listId, updatedList) => dispatch(updateList(listId, updatedList)),
+    removeList: (listId) => dispatch(removeList(listId))
+})
 
 export default connect(
     mapStateToProps,

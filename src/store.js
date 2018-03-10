@@ -4,11 +4,13 @@ import thunk from 'redux-thunk'
 
 import authReducer, {initAuth} from './state/auth'
 import chatReducer from './state/chat'
+import listsReducer from './state/lists'
 
 
 const reducer = combineReducers({
     auth: authReducer,
-    chat: chatReducer
+    chat: chatReducer,
+    lists: listsReducer
 })
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose

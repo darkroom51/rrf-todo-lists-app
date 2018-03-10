@@ -1,7 +1,6 @@
 import {database, auth, googleProvider} from '../firebase'
 import {syncChat, stopSyncingChat} from './chat'
-
-// import {syncLists, stopSyncingLists} from './lists'
+import {syncLists, stopSyncingLists} from './lists'
 // import {syncList, stopSyncingList} from './list'
 
 const SET_USER = 'auth/SET_USER'
@@ -34,7 +33,7 @@ export const initAuth = () => (dispatch, getState) => {
             dispatch(logLoginDate())
             dispatch(syncLoginLogs())
             dispatch(syncChat())
-            // dispatch(syncLists())
+            dispatch(syncLists())
             // dispatch(syncList())
         }
     })
@@ -72,6 +71,7 @@ export const logOut = () => (dispatch, getState) => {
         .then(() => {
             console.log('Logged Out!')
             dispatch(stopSyncingChat())
+            dispatch(stopSyncingLists())
         })
         .catch(() => dispatch(setLoginMsg('Something wrong with LogOut!')))
 }
