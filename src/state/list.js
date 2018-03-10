@@ -64,7 +64,7 @@ export const syncList = (listId) => (dispatch, getState) => {
         })
 }
 export const stopSyncingList = (listId) => (dispatch, getState) => {
-    const uid = getState().auth.user.uid
+    const uid = getState().auth.user.uid || null
     database.ref(`/users/${uid}/lists/${listId}/list/`)
         .off('value')
 }

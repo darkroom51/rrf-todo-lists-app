@@ -13,7 +13,7 @@ import TodoListEdit from './TodoListEdit'
 import TodoListFilter from './TodoListFilter'
 
 import {connect} from 'react-redux'
-import {syncList, stopSyncingList, pushTask, removeTask, updateTask} from "../../state/list";
+import {syncList, /*stopSyncingList,*/ pushTask, removeTask, updateTask} from "../../state/list";
 
 
 class TodoList extends Component {
@@ -30,8 +30,8 @@ class TodoList extends Component {
         this.props.syncList(this.state.listId)
     }
 
-    componentWillUnmount() {
-        this.props.stopSyncingList(this.state.listId)
+    componentWillUnmount() { //TODO close websocket when component is unmounted
+        //this.props.stopSyncingList(this.state.listId)
     }
 
 
@@ -168,7 +168,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
     syncList: (listId) => dispatch(syncList(listId)),
-    stopSyncingList: (listId) => dispatch(stopSyncingList(listId)),
+    //stopSyncingList: (listId) => dispatch(stopSyncingList(listId)),
     pushTask: (listId, newTask) => dispatch(pushTask(listId, newTask)),
     updateTask: (taskId, listId, updatedTask) => dispatch(updateTask(taskId, listId, updatedTask)),
     removeTask: (taskId, listId) => dispatch(removeTask(taskId, listId))

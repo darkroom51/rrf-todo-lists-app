@@ -1,7 +1,7 @@
 import {database, auth, googleProvider} from '../firebase'
 import {syncChat, stopSyncingChat} from './chat'
 import {syncLists, stopSyncingLists} from './lists'
-// import {syncList, stopSyncingList} from './list'
+import {/*syncList,*/ stopSyncingList} from './list'
 
 const SET_USER = 'auth/SET_USER'
 const SET_LOGIN_LOGS = 'auth/SET_LOGIN_LOGS'
@@ -72,6 +72,7 @@ export const logOut = () => (dispatch, getState) => {
             console.log('Logged Out!')
             dispatch(stopSyncingChat())
             dispatch(stopSyncingLists())
+            dispatch(stopSyncingList())
         })
         .catch(() => dispatch(setLoginMsg('Something wrong with LogOut!')))
 }
