@@ -1,19 +1,21 @@
+//NOTE: different/wrong way just for the future reference
 import {database} from '../firebase'
 
 const SET_CHAT = 'chat/SET_CHAT'
 const SET_NEW_MESSAGE = 'chat/SET_NEW_MESSAGE'
-//const SET_UPDATED_MESSAGE = 'chat/SET_UPDATED_MESSAGE'
 
+// ACTIONS CREATORS
 
 const setChat = (chat) => ({
     type: SET_CHAT,
     chat: chat
 })
-
 const setNewMessage = (newMessage) => ({
     type: SET_NEW_MESSAGE,
     newMessage
 })
+
+// ASYNC ACTIONS CREATORS
 
 export const syncChat = () => (dispatch, getState) => {
     database.ref(`/chat/list/`)
@@ -36,7 +38,7 @@ export const pushMessage = (obj) => (dispatch, getState) => {
 }
 
 export const updateMessage = (id, obj) => (dispatch, getState) => {
-    // not thru store ?? how it should be ??
+    // not thru store, no actions
     database.ref(`/chat/list/${id}`)
         .update(obj)
         .then(() => {})
@@ -44,7 +46,7 @@ export const updateMessage = (id, obj) => (dispatch, getState) => {
 }
 
 export const removeMessage = (id) => (dispatch, getState) => {
-    // not thru store ?? how it should be ??
+    // not thru store, no actions
     database.ref(`/chat/list/${id}`)
         .remove()
         .then(() => {})

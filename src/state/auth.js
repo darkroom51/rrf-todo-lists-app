@@ -26,7 +26,7 @@ const setLoginMsg = (msg) => ({
 
 export const initAuth = () => (dispatch, getState) => {
     auth.onAuthStateChanged((user) => {
-        // if not logged in user is null !
+        // if not logged in user is null! if logged in set user data to store
         dispatch(setUser(user))
 
         if(user){ //if not null user is logged in, so set his record in DB
@@ -86,8 +86,7 @@ export const logInWithGoogle = () => (dispatch, getState) => {
 
 const initialState = {
     user: null,
-    msg: '',
-    snackbarOpen: false,
+    msg: ''
 }
 
 
@@ -108,8 +107,7 @@ export default (state = initialState, action) => {
         case SET_LOGIN_MSG:{
             return {
                 ...state,
-                msg: action.loginMsg,
-                snackbarOpen: true,
+                msg: action.loginMsg
             }
         }
         default:

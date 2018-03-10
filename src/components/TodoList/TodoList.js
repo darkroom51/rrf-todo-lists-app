@@ -13,91 +13,61 @@ import TodoListEdit from './TodoListEdit'
 import TodoListFilter from './TodoListFilter'
 
 import {connect} from 'react-redux'
-import {database} from '../../firebase'
-
+import {syncList, stopSyncingList, pushTask, removeTask, updateTask} from "../../state/list";
 
 
 class TodoList extends Component {
     state = {
-        todoList: null,
         listId: this.props.match.params.id,
-
         newTaskName: '',
         filterTaskName: '',
         filterTasksSelect: 0,
-        snackbarOpen: false,
-        msg: ''
+        snackbarOpen: false
     }
+
 
     componentDidMount() {
-        this.getTasks();
+        this.props.syncList(this.state.listId)
     }
 
-    getTasks = () => {
-        database.ref(`/users/${this.props.uuid}/lists/${this.state.listId}/list/`)
-            .on('value', (snapshot)=>
-                this.setState({todoList: Object.entries(snapshot.val() || {})})
-            )
+    componentWillUnmount() {
+        this.props.stopSyncingList(this.state.listId)
     }
+
 
     addTask = () => {
         if (this.state.newTaskName) {
-            const listObj = {
+            const taskObj = {
                 name: this.state.newTaskName,
                 completed: false,
                 date: Date.now()
             }
-            database.ref(`/users/${this.props.uuid}/lists/${this.state.listId}/list/`)
-                .push(listObj)
-                .then(() => {
-                    this.setState({newTaskName: '', msg: 'Task has been added successfully', snackbarOpen: false})
-                })
-                .catch(() => {
-                    this.setState({newTaskName: '', msg: 'Ups,task not added', snackbarOpen: true})
-                })
+            this.props.pushTask(this.state.listId, taskObj)
+            this.setState({newTaskName: '', snackbarOpen: true})
         }
-    }
-
-    deleteTask = (taskId) => {
-        database.ref(`/users/${this.props.uuid}/lists/${this.state.listId}/list/${taskId}`)
-            .remove()
-            .then(() => {
-                this.setState({msg: 'Task has been deleted successfully', snackbarOpen: false})
-            })
-            .catch(() => {
-                this.setState({msg: 'Ups, task not deleted', snackbarOpen: true})
-            })
     }
 
     updateTask = (taskId, taskName) => {
         if (taskName) {
-            const listObj = {
+            const taskObj = {
                 name: taskName
-                //date: Date.now()
             }
-            database.ref(`/users/${this.props.uuid}/lists/${this.state.listId}/list/${taskId}`)
-                .update(listObj)
-                .then(() => {
-                    this.setState({msg: 'Task has been updated successfully', snackbarOpen: false})
-                })
-                .catch(() => {
-                    this.setState({msg: 'Ups, task not updated', snackbarOpen: true})
-                })
+            this.props.updateTask(taskId, this.state.listId, taskObj)
+            this.setState({snackbarOpen: true})
         }
     }
 
+    deleteTask = (taskId) => {
+        this.props.removeTask(taskId, this.state.listId)
+        this.setState({snackbarOpen: true})
+    }
+
     toggleDoneTask = (taskId, taskDone) => {
-            const listObj = {
-                completed: !taskDone
-            }
-            database.ref(`/users/${this.props.uuid}/lists/${this.state.listId}/list/${taskId}`)
-                .update(listObj)
-                .then(() => {
-                    this.setState({msg: 'Task has been toggled successfully', snackbarOpen: false})
-                })
-                .catch(() => {
-                    this.setState({msg: 'Ups, task not toggled', snackbarOpen: true})
-                })
+        const taskObj = {
+            completed: !taskDone
+        }
+        this.props.updateTask(taskId, this.state.listId, taskObj)
+        this.setState({snackbarOpen: true})
     }
 
 
@@ -127,9 +97,9 @@ class TodoList extends Component {
                 <div>
                     <List>
                         {
-                            this.state.todoList
+                            this.props.listData
                             &&
-                            this.state.todoList
+                            this.props.listData
                                 .filter(([key,val]) => val.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").indexOf(this.state.filterTaskName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")) !== -1)
                                 .filter(([key,val]) => (this.state.filterTasksSelect === 0 ? true : this.state.filterTasksSelect === 1 ? val.completed === false : val.completed === true))
                                 .map(([key,val])=>(
@@ -182,7 +152,7 @@ class TodoList extends Component {
                     SnackbarContentProps={{
                         'aria-describedby': 'message-id',
                     }}
-                    message={<span id="message-id">{this.state.msg}</span>}
+                    message={<span id="message-id">{this.props.msg}</span>}
                 />
             </div>
         );
@@ -190,11 +160,19 @@ class TodoList extends Component {
 }
 
 const mapStateToProps = state => ({
-    uuid: state.auth.user.uid
+    listData: Object.entries(state.list.listData),
+    uuid: state.auth.user.uid,
+    msg: state.list.msg
 })
 
 
-const mapDispatchToProps = dispatch => ({})
+const mapDispatchToProps = dispatch => ({
+    syncList: (listId) => dispatch(syncList(listId)),
+    stopSyncingList: (listId) => dispatch(stopSyncingList(listId)),
+    pushTask: (listId, newTask) => dispatch(pushTask(listId, newTask)),
+    updateTask: (taskId, listId, updatedTask) => dispatch(updateTask(taskId, listId, updatedTask)),
+    removeTask: (taskId, listId) => dispatch(removeTask(taskId, listId))
+})
 
 export default connect(
     mapStateToProps,
