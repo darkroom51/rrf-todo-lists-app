@@ -1,4 +1,4 @@
-import {database, auth, googleProvider} from '../firebase'
+import {database, auth, googleProvider, facebookProvider} from '../firebase'
 import {syncChat, stopSyncingChat} from './chat'
 import {syncLists, stopSyncingLists} from './lists'
 import {/*syncList,*/ stopSyncingList} from './list'
@@ -81,6 +81,12 @@ export const logInWithGoogle = () => (dispatch, getState) => {
     auth.signInWithPopup(googleProvider)
         .then(() => console.log('Logged in!'))
         .catch(() => dispatch(setLoginMsg('Something wrong with G Login!')))
+}
+
+export const logInWithFacebook = () => (dispatch, getState) => {
+    auth.signInWithPopup(facebookProvider)
+        .then(() => console.log('Logged in!'))
+        .catch(() => dispatch(setLoginMsg('Something wrong with FB Login!')))
 }
 
 

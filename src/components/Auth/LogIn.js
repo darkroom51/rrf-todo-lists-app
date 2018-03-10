@@ -49,7 +49,7 @@ const LogIn = (props) => (
                 style={styles.button}
                 onClick={props.onLogInClick}
             >
-                Email
+                Sign in
             </Button>
 
             <Button
@@ -65,7 +65,8 @@ const LogIn = (props) => (
                 variant={"raised"}
                 color={"secondary"}
                 style={styles.button}
-                onClick={props.onLogInByFacebookClick}
+                //onClick={props.onLogInByFacebookClick}  //TODO FB auth
+                onClick={()=>{alert('Sorry, FB Auth not done yet. Use Sign Up/Login with email or login with Google.')}}
             >
                 Facebook
             </Button>
